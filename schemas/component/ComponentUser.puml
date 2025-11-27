@@ -1,0 +1,25 @@
+@startuml
+title SmartHouse User Service Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(SmartHouse, "SmartHouse System") {
+  Container(UserService, "User Service", "Go", "Пользователи, аутентификация")
+  ContainerDb(UserServiceDB, "Database", "PostgreSQL", "Учетные записи пользователей")
+}
+
+Container(UserService, "User Service", "Go") {
+  Component(UserAPI, "User API", "Регистрация, логин, профиль пользователя")
+  Component(AuthController, "Auth Controller", "Авторизация, аутентификация")
+  Component(UserController, "User Controller", "Управление профилем пользователя")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+}
+
+Rel(UserAPI,AuthController,"Логин")
+Rel(UserAPI,UserController,"Регистрация, профиль пользователя")
+Rel(AuthController,RepositoryLayer,"Учетные данные пользователя")
+Rel(UserController,RepositoryLayer,"Профиль пользователя")
+Rel(RepositoryLayer,UserServiceDB,"Запись/чтение данных")
+@enduml

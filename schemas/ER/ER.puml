@@ -1,0 +1,147 @@
+@startuml
+title SmartHouse Device Management Service ER Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+class DeviceCategory {
+  +String id
+  +String code
+  +String name
+}
+
+class DeviceCapability {
+  +String deviceModelId
+  +String id
+  +String type
+  +String name
+  +String command
+}
+
+class DeviceModelAttribute {
+  +String deviceCapabilityId
+  +String key
+  +String value
+}
+
+class DeviceModel {
+  +String id
+  +String manufacturer
+  +String model
+  +String name
+  +String categoryId
+  +[]String protocols
+  +String configData
+}
+
+class House {
+  +String id
+  +String name
+  +String city
+  +String address
+  +String timeZone
+}
+
+class User {
+  +String id
+  +String username
+  +String passwordHash
+  +String name
+  +String houseId
+  +String status
+}
+
+class Device {
+  +String id
+  +String serialNumber
+  +String deviceModelId
+  +String houseId
+  +String name
+  +String status
+}
+
+class DeviceAttribute {
+  +String deviceId
+  +String key
+  +String value
+}
+
+class Telemetry {
+  +String id
+  +String deviceId
+  +Datetime createdAt
+  +String metricId
+  +String houseId
+  +String rowData
+}
+
+class TelemetryMetric {
+  +String id
+  +String key
+  +String value
+  +String unit
+}
+
+class AutomationScenario {
+  +String id
+  +String houseId
+  +String name
+  +String description
+  +Boolean enabled
+  +Integer priority
+}
+
+class AutomationTrigger {
+  +String id
+  +String scenarioId
+  +String type
+  +String sourceDeviceId
+  +String sourceMetric
+  +String scheduleId
+}
+
+class AutomationCondition {
+  +String id
+  +String scenarioId
+  +String expression
+}
+
+class AutomationAction {
+  +String id
+  +String scenarioId
+  +String type
+  +String targetDeviceId
+  +Integer order
+}
+
+class AutomationActionDeviceAttribute {
+  +String automationActionId
+  +String attributeKey
+  +String attributeValue
+}
+
+class AutomationSchedule {
+  +String id
+  +String cronExpression
+  +String timezone
+}
+
+Device "1" -- "0..*" DeviceAttribute : has
+House "1" -- "0..*" User : has
+House "1" -- "0..*" Device : has
+DeviceCategory "1" -- "0..*" DeviceModel : has
+Device "0..*" -- "1" DeviceModel : has
+DeviceModel "1" -- "1..*" DeviceCapability : has
+DeviceCapability "1" -- "0..*" DeviceModelAttribute : has
+Telemetry "1" -- "1" TelemetryMetric : has
+Device "1" -- "0..*" Telemetry : has
+
+House "1" -- "0..*" AutomationScenario : has
+AutomationScenario "1" -- "1..*" AutomationTrigger : has
+AutomationScenario "1" -- "0..*" AutomationCondition : has
+AutomationScenario "1" -- "1..*" AutomationAction : has
+AutomationTrigger "1" -- "0..1" AutomationSchedule: has
+AutomationAction "1" -- "1..*" AutomationActionDeviceAttribute : has
+
+@enduml

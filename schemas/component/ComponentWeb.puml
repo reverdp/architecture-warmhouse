@@ -1,0 +1,38 @@
+@startuml
+title SmartHouse Web Application Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(SmartHouse, "SmartHouse System") {
+  Container(WebApp, "Web Application", "", "Веб-приложение")
+  Container(ApiGateway, "Api Gateway", "Go", "Единая точка входа для веб-приложения")
+}
+
+Container(WebApp, "Web Application", "") {
+  Component(Router, "Router", "Маршрутизатор запроса")
+  Component(UserController, "User Controller", "Аутентификация, профиль пользователя")
+  Component(TelemetryController, "Telemetry Controller", "Сохренение телеметрии")
+  Component(HouseController, "House Controller", "Управление домами")
+  Component(DeviceManagementController, "Device Management Controller", "Управление экземплярами устройств")
+  Component(DeviceCatalogController, "Device Catalog Controller", "Управление поддерживаемыми устройствами")
+  Component(AutomationController, "Automation Controller", "Управление сценариями")
+  Component(APILayer, "API Layer", "Data access logic")
+}
+
+Rel(Router,UserController,"")
+Rel(Router,TelemetryController,"")
+Rel(Router,HouseController,"")
+Rel(Router,DeviceManagementController,"")
+Rel(Router,DeviceCatalogController,"")
+Rel(Router,AutomationController,"")
+
+Rel(UserController,APILayer,"Регистрация, логин, профиль пользователя")
+Rel(TelemetryController,APILayer,"Запрос телеметрии устройств")
+Rel(HouseController,APILayer,"Управление домами")
+Rel(DeviceManagementController,APILayer,"Управление экземплярами устройств")
+Rel(DeviceCatalogController,APILayer,"Каталог поддерживаемых устройств")
+Rel(AutomationController,APILayer,"Управление автоматизациий")
+Rel(APILayer,ApiGateway,"Вызов API")
+@enduml

@@ -1,0 +1,69 @@
+@startuml
+title SmartHouse Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Пользователь", "Пользователи системы SmartHouse")
+Person(support, "Служба поддержки", "Служба поддержки системы SmartHouse")
+System(SmartHouseSystem, "Система SmartHouse", "Управление умным домом")
+
+System_Ext(device, "Умное устройство", "Управление устройстом")
+
+Container_Boundary(SmartHouseSystem, "Система SmartHouse") {
+  Container(WebApp, "Web Application", "", "Веб-приложение")
+  Container(ApiGateway, "Api Gateway", "Go", "Единая точка входа для веб-приложения")
+
+  Container(UserService, "User Service", "Go", "Пользователи, аутентификация")
+  ContainerDb(UserServiceDB, "Database", "PostgreSQL", "Учетные записи пользователей")
+
+  Container(HouseService, "House Service", "Go", "Справочные данные дома")
+  ContainerDb(HouseServiceDB, "Database", "PostgreSQL", "Дома")
+
+  Container(DeviceManagementService, "Device Management Service", "Go", "Экземпляры устройств, обработка команд")
+  ContainerDb(DeviceManagementServiceDB, "Database", "PostgreSQL", "Экземпляры устройств")
+
+  Container(DeviceCatalogService, "Device Catalog Service", "Go", "Справочник поддерживаемых устройств")
+  ContainerDb(DeviceCatalogServiceDB, "Database", "PostgreSQL", "Справочник устройств")
+
+  Container(AutomationService, "Automation Service", "Go", "Автоматизация: сценарии, правила, расписание")
+  ContainerDb(AutomationServiceDB, "Database", "PostgreSQL", "Сценарии")
+
+  Container(TelemetryService, "Telemetry Service", "Go", "Телеметрия с устройств")
+  ContainerDb(TelemetryServiceDB, "Database", "PostgreSQL", "Телеметрия с устройств")
+
+  ContainerQueue(EventBus, "EventBus", "Kafka", "Брокер сообщений")
+
+  Container(DeviceAdapterService, "Device Adapter Service", "Go", "Подключение к устройствам")
+
+  }
+}
+
+Rel(user, WebApp, "Использование системы")
+Rel(support, WebApp, "Мониториг и настройка системы")
+
+Rel(WebApp, ApiGateway, "", "REST")
+Rel(ApiGateway, UserService, "Аутентификация, регистрация, данные профиля", "REST")
+Rel(ApiGateway, HouseService, "Инфомация о доме и местоположении устройств", "REST")
+Rel(ApiGateway, DeviceManagementService, "Управление устройстами", "REST")
+Rel(ApiGateway, DeviceCatalogService, "Список подерживаемых устройств", "REST")
+Rel(ApiGateway, AutomationService, "Настройка автоматизации", "REST")
+Rel(ApiGateway, TelemetryService, "Запрос телеметрии устройства", "REST")
+
+Rel(UserService, UserServiceDB, "", "JDBC")
+Rel(HouseService, HouseServiceDB, "", "JDBC")
+Rel(DeviceManagementService, DeviceManagementServiceDB, "", "JDBC")
+Rel(DeviceCatalogService, DeviceCatalogServiceDB, "", "JDBC")
+Rel(AutomationService, AutomationServiceDB, "", "JDBC")
+Rel(TelemetryService, TelemetryServiceDB, "", "JDBC")
+
+Rel(TelemetryService, EventBus, "Телеметрия с устройств (журнал)")
+Rel(AutomationService, EventBus, "Телеметрия с устройств (триггер)")
+Rel(DeviceManagementService, DeviceCatalogService, "Запрос спецификации устройства", "REST")
+Rel(DeviceManagementService, EventBus, "Статус устройства")
+Rel(DeviceAdapterService, EventBus, "Статус устройства, телеметрия")
+Rel(DeviceAdapterService, device, "")
+Rel(AutomationService, DeviceManagementService, "Выполнение действия по сценарию", "REST")
+
+@enduml

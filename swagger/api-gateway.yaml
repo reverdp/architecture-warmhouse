@@ -1,0 +1,1161 @@
+openapi: 3.0.3
+info:
+  title: SmartHouse API Gateway
+  version: 1.0.0
+  description: |
+    API-шлюз системы SmartHouse
+   
+tags:
+  - name: Auth
+    description: Аутентификация и регистрация пользователей
+  - name: Users
+    description: Профиль пользователя
+  - name: Houses
+    description: Управление домами
+  - name: Devices
+    description: Управление устройствами и командами
+  - name: DeviceCatalog
+    description: Каталог поддерживаемых моделей устройств
+  - name: Automation
+    description: Сценарии автоматизации (правила, триггеры, расписания)
+  - name: Telemetry
+    description: Телеметрия устройств
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Регистрация нового пользователя
+      description: |
+        Регистрация пользователя в системе
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Некорректные данные регистрации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Пользователь с таким логином уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Вход пользователя в систему
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Успешная аутентификация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Неверный логин или пароль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Обновление access-токена по refresh-токену
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+              required:
+                - refreshToken
+      responses:
+        '200':
+          description: Новый access-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '401':
+          description: Недействительный refresh-токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/profile:
+    get:
+      tags: [Users]
+      summary: Информация о текущем пользователе
+      responses:
+        '200':
+          description: Данные текущего пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Неавторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /houses:
+    get:
+      tags: [Houses]
+      summary: Список домов текущего пользователя
+      responses:
+        '200':
+          description: Список домов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/House'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Houses]
+      summary: Создать новый дом
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HouseCreateRequest'
+      responses:
+        '201':
+          description: Дом создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/House'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /houses/{houseId}:
+    parameters:
+      - $ref: '#/components/parameters/HouseId'
+    get:
+      tags: [Houses]
+      summary: Получить дом по идентификатору
+      responses:
+        '200':
+          description: Дом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/House'
+        '404':
+          description: Дом не найден или недоступен пользователю
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags: [Houses]
+      summary: Обновить данные дома
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HouseUpdateRequest'
+      responses:
+        '200':
+          description: Обновлённый дом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/House'
+        '404':
+          description: Дом не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags: [Houses]
+      summary: Удалить дом
+      responses:
+        '204':
+          description: Дом удалён
+        '404':
+          description: Дом не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /device-categories:
+    get:
+      tags: [DeviceCatalog]
+      summary: Список категорий устройств
+      description: Например, "thermostat", "light", "gate", "camera".
+      responses:
+        '200':
+          description: Список категорий
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceCategory'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /device-models:
+    get:
+      tags: [DeviceCatalog]
+      summary: Список поддерживаемых моделей устройств
+      parameters:
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+          description: Фильтр по категории устройства
+        - in: query
+          name: protocol
+          schema:
+            type: string
+          description: Фильтр по поддерживаемому протоколу
+      responses:
+        '200':
+          description: Список моделей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceModel'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /device-models/{deviceModelId}:
+    parameters:
+      - name: deviceModelId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Идентификатор модели устройства
+    get:
+      tags: [DeviceCatalog]
+      summary: Получить подробную информацию о модели устройства
+      responses:
+        '200':
+          description: Модель устройства с возможностями и атрибутами
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceModelDetails'
+        '404':
+          description: Модель не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /houses/{houseId}/devices:
+    parameters:
+      - $ref: '#/components/parameters/HouseId'
+    get:
+      tags: [Devices]
+      summary: Список устройств в доме
+      responses:
+        '200':
+          description: Устройства в доме
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Devices]
+      summary: Регистрация нового устройства в доме
+      description: |
+        Регистрация нового устройства в доме
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceRegisterRequest'
+      responses:
+        '201':
+          description: Устройство зарегистрировано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /houses/{houseId}/devices/{deviceId}:
+    parameters:
+      - $ref: '#/components/parameters/HouseId'
+      - $ref: '#/components/parameters/DeviceId'
+    get:
+      tags: [Devices]
+      summary: Получить информацию об устройстве
+      responses:
+        '200':
+          description: Устройство
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: Устройство не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags: [Devices]
+      summary: Обновить устройство
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceUpdateRequest'
+      responses:
+        '200':
+          description: Обновлённое устройство
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: Устройство не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags: [Devices]
+      summary: Удалить устройство из дома
+      responses:
+        '204':
+          description: Устройство удалено
+        '404':
+          description: Устройство не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /houses/{houseId}/devices/{deviceId}/attributes:
+    parameters:
+      - $ref: '#/components/parameters/HouseId'
+      - $ref: '#/components/parameters/DeviceId'
+    get:
+      tags: [Devices]
+      summary: Получить атрибуты устройства
+      responses:
+        '200':
+          description: Атрибуты устройства
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceAttribute'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /houses/{houseId}/devices/{deviceId}/commands:
+    parameters:
+      - $ref: '#/components/parameters/HouseId'
+      - $ref: '#/components/parameters/DeviceId'
+    post:
+      tags: [Devices]
+      summary: Отправить команду устройству
+      description: |
+        - включить/выключить свет
+        - установить температуру отопления
+        - открыть/закрыть ворота
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceCommandRequest'
+      responses:
+        '202':
+          description: Команда принята к исполнению
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceCommandResponse'
+        '400':
+          description: Неверная команда или параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /houses/{houseId}/scenarios:
+    parameters:
+      - $ref: '#/components/parameters/HouseId'
+    get:
+      tags: [Automation]
+      summary: Список сценариев автоматизации для дома
+      responses:
+        '200':
+          description: Сценарии
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AutomationScenario'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Automation]
+      summary: Создать новый сценарий автоматизации
+      description: |
+        - триггеры: по расписанию или телеметрии устройства
+        - условия: выражения на основе данных
+        - действия: команды устройствам (например, "включить отопление" или "закрыть ворота")
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutomationScenarioCreateRequest'
+      responses:
+        '201':
+          description: Сценарий создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutomationScenario'
+        '400':
+          description: Ошибка валидации сценария
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /houses/{houseId}/scenarios/{scenarioId}:
+    parameters:
+      - $ref: '#/components/parameters/HouseId'
+      - $ref: '#/components/parameters/ScenarioId'
+    get:
+      tags: [Automation]
+      summary: Получить сценарий автоматизации
+      responses:
+        '200':
+          description: Сценарий
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutomationScenario'
+        '404':
+          description: Сценарий не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags: [Automation]
+      summary: Обновить сценарий автоматизации
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutomationScenarioUpdateRequest'
+      responses:
+        '200':
+          description: Обновлённый сценарий
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutomationScenario'
+        '404':
+          description: Сценарий не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags: [Automation]
+      summary: Удалить сценарий автоматизации
+      responses:
+        '204':
+          description: Сценарий удалён
+        '404':
+          description: Сценарий не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /houses/{houseId}/devices/{deviceId}/telemetry:
+    parameters:
+      - $ref: '#/components/parameters/HouseId'
+      - $ref: '#/components/parameters/DeviceId'
+      - in: query
+        name: metricKey
+        schema:
+          type: string
+        description: Ключ метрики, например "temperature", "power", "state"
+      - in: query
+        name: from
+        schema:
+          type: string
+          format: date-time
+        description: Начало интервала
+      - in: query
+        name: to
+        schema:
+          type: string
+          format: date-time
+        description: Конец интервала
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Максимальное количество записей
+      - in: query
+        name: sort
+        schema:
+          type: string
+          enum: [asc, desc]
+          default: desc
+        description: Направление сортировки
+    get:
+      tags: [Telemetry]
+      summary: Получить историю телеметрии устройства
+      responses:
+        '200':
+          description: Список записей телеметрии
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TelemetryPoint'
+        '404':
+          description: Устройство не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    InternalServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  parameters:
+    HouseId:
+      name: houseId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор дома
+    DeviceId:
+      name: deviceId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор устройства
+    ScenarioId:
+      name: scenarioId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Идентификатор сценария автоматизации
+
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+        name:
+          type: string
+          description: Имя пользователя
+      required:
+        - username
+        - password
+        - name
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+      required:
+        - username
+        - password
+
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          description: Время жизни access-токена в секундах
+      required:
+        - accessToken
+        - tokenType
+        - expiresIn
+
+    AuthResponse:
+      type: object
+      properties:
+        tokens:
+          $ref: '#/components/schemas/AuthTokens'
+      required:
+        - tokens
+        - user
+        - house
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        name:
+          type: string
+        houseId:
+          type: string
+        status:
+          type: string
+          description: Статус пользователя
+      required:
+        - id
+        - username
+        - name
+        - status
+
+    House:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        timeZone:
+          type: string
+      required:
+        - id
+        - name
+        - timeZone
+
+    HouseCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        timeZone:
+          type: string
+      required:
+        - name
+        - timeZone
+
+    HouseUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/HouseCreateRequest'
+
+    DeviceCategory:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+          description: код категории
+        name:
+          type: string
+          description: Наименование
+      required:
+        - id
+        - code
+        - name
+
+    DeviceModel:
+      type: object
+      properties:
+        id:
+          type: string
+        manufacturer:
+          type: string
+        model:
+          type: string
+        name:
+          type: string
+        categoryId:
+          type: string
+        protocols:
+          type: array
+          items:
+            type: string
+          description: Поддерживаемые протоколы
+      required:
+        - id
+        - manufacturer
+        - model
+        - name
+        - categoryId
+
+    DeviceCapability:
+      type: object
+      properties:
+        id:
+          type: string
+        deviceModelId:
+          type: string
+        type:
+          type: string
+          description: Тип возможности
+        name:
+          type: string
+        command:
+          type: string
+          description: Код команды
+      required:
+        - id
+        - deviceModelId
+        - type
+        - name
+
+    DeviceModelAttribute:
+      type: object
+      properties:
+        deviceCapabilityId:
+          type: string
+        key:
+          type: string
+        value:
+          type: string
+      required:
+        - deviceCapabilityId
+        - key
+        - value
+
+    DeviceModelDetails:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/DeviceModel'
+        category:
+          $ref: '#/components/schemas/DeviceCategory'
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceCapability'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceModelAttribute'
+      required:
+        - model
+        - category
+        - capabilities
+
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+        serialNumber:
+          type: string
+        deviceModelId:
+          type: string
+        houseId:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          description: Статус устройства
+      required:
+        - id
+        - serialNumber
+        - deviceModelId
+        - houseId
+        - name
+        - status
+
+    DeviceRegisterRequest:
+      type: object
+      properties:
+        serialNumber:
+          type: string
+        deviceModelId:
+          type: string
+        name:
+          type: string
+        initialAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceAttribute'
+      required:
+        - serialNumber
+        - deviceModelId
+        - name
+
+    DeviceUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+
+    DeviceAttribute:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+        - key
+        - value
+
+    DeviceCommandRequest:
+      type: object
+      properties:
+        command:
+          type: string
+          description: Код команды
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+          description: Параметры команды
+      required:
+        - command
+
+    DeviceCommandResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        status:
+          type: string
+          description: Статус команды
+        message:
+          type: string
+          nullable: true
+
+    AutomationScenario:
+      type: object
+      properties:
+        id:
+          type: string
+        houseId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        priority:
+          type: integer
+          description: Приоритет сценария
+        triggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationTrigger'
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationCondition'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationAction'
+      required:
+        - id
+        - houseId
+        - name
+        - enabled
+        - priority
+
+    AutomationScenarioCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+          default: true
+        priority:
+          type: integer
+          default: 0
+        triggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationTrigger'
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationCondition'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationAction'
+      required:
+        - name
+        - enabled
+        - priority
+        - triggers
+        - actions
+
+    AutomationScenarioUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/AutomationScenarioCreateRequest'
+
+    AutomationTrigger:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        scenarioId:
+          type: string
+          nullable: true
+        type:
+          type: string
+          description: Тип триггера (SCHEDULE, TELEMETRY)
+        sourceDeviceId:
+          type: string
+          nullable: true
+          description: Идентификатор устройства-источника телеметрии
+        sourceMetric:
+          type: string
+          nullable: true
+          description: Ключ метрики (temperature, power)
+        schedule:
+          $ref: '#/components/schemas/AutomationSchedule'
+      required:
+        - type
+
+    AutomationCondition:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        scenarioId:
+          type: string
+          nullable: true
+        expression:
+          type: string
+          description: Выражение для проверки условия
+      required:
+        - expression
+
+    AutomationAction:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        scenarioId:
+          type: string
+          nullable: true
+        type:
+          type: string
+          description: Тип действия
+        targetDeviceId:
+          type: string
+          nullable: true
+        order:
+          type: integer
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationActionDeviceAttribute'
+      required:
+        - type
+        - order
+
+    AutomationActionDeviceAttribute:
+      type: object
+      properties:
+        attributeKey:
+          type: string
+        attributeValue:
+          type: string
+      required:
+        - attributeKey
+        - attributeValue
+
+    AutomationSchedule:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        cronExpression:
+          type: string
+        timezone:
+          type: string
+      required:
+        - cronExpression
+        - timezone
+
+    TelemetryPoint:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        houseId:
+          type: string
+        metricKey:
+          type: string
+        value:
+          type: number
+        unit:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - deviceId
+        - houseId
+        - metricKey
+        - value
+        - timestamp
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true
+      required:
+        - code
+        - message

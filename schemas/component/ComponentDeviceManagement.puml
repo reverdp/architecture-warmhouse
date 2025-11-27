@@ -1,0 +1,33 @@
+@startuml
+title SmartHouse Device Management Service Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(SmartHouse, "SmartHouse System") {
+  Container(DeviceManagementService, "Device Management Service", "Go", "Экземпляры устройств, обработка команд")
+  ContainerDb(DeviceManagementServiceDB, "Database", "PostgreSQL", "Экземпляры устройств")
+  ContainerQueue(EventBus, "Event Bus", "Kafka", "Брокер сообщений")
+  Container(DeviceCatalogService, "Device Catalog Service", "Go", "Справочник поддерживаемых устройств")
+}
+
+Container(DeviceManagementService, "Device Management Service", "Go") {
+  Component(DeviceManagementAPI, "Device Management API", "Управление экземплярами устройств и их состояниями")
+  Component(DeviceCommandController, "Device Command Controller", "Обработка команд для устройств")
+  Component(DeviceController, "Device Controller", "Управление экземплярами устройств")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+  Component(EventGateway, "Event Gateway", "Обработка событий")
+  Component(DeviceCatalogGateway, "Device Catalog Gateway", "Логика работы с каталогом устройств")
+}
+
+Rel(DeviceManagementAPI,DeviceCommandController,"Изменение состояния устройства")
+Rel(DeviceManagementAPI,DeviceController,"Список, добавление, изменение, удаление экземпляров устройств")
+Rel(DeviceCommandController,RepositoryLayer,"Экземпляры устройств")
+Rel(DeviceCommandController,EventGateway,"Изменение состояния устройства")
+Rel(DeviceCommandController,DeviceCatalogGateway,"Запрос поддерживаемой команды устройства")
+Rel(DeviceCatalogGateway,DeviceCatalogService,"Вызов API")
+Rel(EventGateway,EventBus,"Публикация/чтение событий")
+Rel(DeviceController,RepositoryLayer,"Экземпляры устройств")
+Rel(RepositoryLayer,DeviceManagementServiceDB,"Запись/чтение данных")
+@enduml

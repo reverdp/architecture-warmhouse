@@ -1,0 +1,32 @@
+@startuml
+title SmartHouse Automation Service Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(SmartHouse, "SmartHouse System") {
+  Container(AutomationService, "Automation Service", "Go", "Автоматизация: сценарии, правила, расписание")
+  ContainerDb(AutomationServiceDB, "Database", "PostgreSQL", "Сценарии")
+  ContainerQueue(EventBus, "Event Bus", "Kafka", "Брокер сообщений")
+  Container(DeviceManagementService, "Device Management Service", "Go", "Экземпляры устройств, обработка команд")
+}
+
+Container(AutomationService, "Automation Service", "Go") {
+  Component(AutomationAPI, "Automation API", "Управление автоматизацией")
+  Component(AutomationController, "Automation Controller", "Управление сценариями")
+  Component(SchedulerController, "Scheduler Controller", "Запуск сценариев по расписанию")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+  Component(EventGateway, "Event Gateway", "Обработка событий")
+  Component(DeviceManagementGateway, "Device Management Gateway", "Логика работы с экземплярами устройств")
+}
+
+Rel(AutomationAPI,AutomationController,"Список, добавление, изменение, удаление сценариев")
+Rel(SchedulerController,AutomationController,"Запуск сценариев")
+Rel(AutomationController,DeviceManagementGateway,"Выполнение действия по сценарию")
+Rel(DeviceManagementGateway,DeviceManagementService,"Вызов API")
+Rel(EventGateway,EventBus,"Публикация/чтение событий")
+Rel(EventGateway,AutomationController,"Запуск сценариев по событию из телеметрии")
+Rel(AutomationController,RepositoryLayer,"Сценарии")
+Rel(RepositoryLayer,AutomationServiceDB,"Запись/чтение данных")
+@enduml

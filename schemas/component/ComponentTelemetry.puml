@@ -1,0 +1,26 @@
+@startuml
+title SmartHouse Telemetry Service Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(SmartHouse, "SmartHouse System") {
+  Container(TelemetryService, "Telemetry Service", "Go", "Телеметрия с устройств")
+  ContainerDb(TelemetryServiceDB, "Database", "PostgreSQL", "Телеметрия")
+  ContainerQueue(EventBus, "Event Bus", "Kafka", "Брокер сообщений")
+}
+
+Container(TelemetryService, "Telemetry Service", "Go") {
+  Component(TelemetryAPI, "Telemetry API", "Телеметрия устройств")
+  Component(TelemetryController, "Telemetry Controller", "Сохренение телеметрии")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+  Component(EventGateway, "Event Gateway", "Обработка событий")
+}
+
+Rel(TelemetryAPI,TelemetryController,"Запрос телеметрии устройства")
+Rel(EventGateway,EventBus,"Публикация/чтение событий")
+Rel(EventGateway,TelemetryController,"Чтение телеметрии")
+Rel(TelemetryController,RepositoryLayer,"Телеметрия")
+Rel(RepositoryLayer,TelemetryServiceDB,"Запись/чтение данных")
+@enduml

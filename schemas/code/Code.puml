@@ -1,0 +1,43 @@
+@startuml
+title SmartHouse Device Management Service Code Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+class DeviceController {
+  +String deviceTypeId
+  +String houseId
+  +String name
+  +String status
+  +List<DeviceAttribute> attributes
+  +response getDevice()
+  +response deviceList()
+  +void addDevice()
+  +void updateDevice()
+  +void deleteDevice()
+}
+
+class DeviceAttribute {
+  +String key
+  +String value
+}
+
+class DeviceCommandHandler {
+  +void executeCommand()
+}
+
+class DeviceCatalogGateway {
+  +info deviceModelInfo()
+}
+
+class EventGateway {
+  +void publishEvent()
+}
+
+DeviceController "1" -- "0..*" DeviceAttribute : has
+DeviceCommandHandler "1" -- "1" DeviceController : call
+DeviceCommandHandler "1" -- "1" DeviceCatalogGateway : call
+DeviceCommandHandler "1" -- "1" EventGateway : call
+
+@enduml

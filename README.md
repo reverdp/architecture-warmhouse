@@ -56,40 +56,40 @@
 
 ### 5. Визуализация контекста системы — диаграмма С4
 
-[Диаграмма контекста](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/context/Context-SmartHome_Context_Diagram.png)
+[Диаграмма контекста](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/context/Context-SmartHome_Context_Diagram.png)
 
 # Задание 2. Проектирование микросервисной архитектуры
 
 **Диаграмма контейнеров (Containers)**
 
-[Диаграмма контейнеров](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/container/Container-SmartHouse_Container_Diagram.png)
+[Диаграмма контейнеров](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/container/Container-SmartHouse_Container_Diagram.png)
 
 
 **Диаграмма компонентов (Components)**
 
-[Диаграмма DeviceManagementService](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/component/ComponentDeviceManagement-SmartHouse_Device_Management_Service_Component_Diagram.png)
+[Диаграмма DeviceManagementService](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/component/ComponentDeviceManagement-SmartHouse_Device_Management_Service_Component_Diagram.png)
 
-[Диаграмма DeviceCatalogService](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/component/ComponentDeviceCatalog-SmartHouse_Device_Catalog_Service_Component_Diagram.png)
+[Диаграмма DeviceCatalogService](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/component/ComponentDeviceCatalog-SmartHouse_Device_Catalog_Service_Component_Diagram.png)
 
-[Диаграмма AutomationService](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/component/ComponentAutomation-SmartHouse_Automation_Service_Component_Diagram.png)
+[Диаграмма AutomationService](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/component/ComponentAutomation-SmartHouse_Automation_Service_Component_Diagram.png)
 
-[Диаграмма TelemetryService](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/component/ComponentTelemetry-SmartHouse_Telemetry_Service_Component_Diagram.png)
+[Диаграмма TelemetryService](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/component/ComponentTelemetry-SmartHouse_Telemetry_Service_Component_Diagram.png)
 
-[Диаграмма UserService](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/component/ComponentUser-SmartHouse_User_Service_Component_Diagram.png)
+[Диаграмма UserService](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/component/ComponentUser-SmartHouse_User_Service_Component_Diagram.png)
 
-[Диаграмма WebApplication](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/component/ComponentWeb-SmartHouse_Web_Application_Component_Diagram.png)
+[Диаграмма WebApplication](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/component/ComponentWeb-SmartHouse_Web_Application_Component_Diagram.png)
 
-[Диаграмма HouseService](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/component/ComponentHouse-SmartHouse_House_Service_Component_Diagram.png)
+[Диаграмма HouseService](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/component/ComponentHouse-SmartHouse_House_Service_Component_Diagram.png)
 
 
 
 **Диаграмма кода (Code)**
 
-[Диаграмма кода](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/code/Code-SmartHouse_Device_Management_Service_Code_Diagram.png)
+[Диаграмма кода](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/code/Code-SmartHouse_Device_Management_Service_Code_Diagram.png)
 
 # Задание 3. Разработка ER-диаграммы
 
-[Диаграмма ER](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/schemas/ER/ER-SmartHouse_Device_Management_Service_ER_Diagram.png)
+[Диаграмма ER](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/schemas/ER/ER-SmartHouse_Device_Management_Service_ER_Diagram.png)
 
 # Задание 4. Создание и документирование API
 
@@ -100,7 +100,7 @@
 
 ### 2. Документация API
 
-[Swagger](https://github.com/reverdp/architecture-pro-warmhouse/blob/warmhouse/swagger/api-gateway.yaml)
+[Swagger](https://github.com/reverdp/architecture-warmhouse/blob/warmhouse/swagger/api-gateway.yaml)
 
 # Задание 5. Работа с docker и docker-compose
 
